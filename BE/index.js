@@ -2,12 +2,12 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const port = 3001;
-app.use(cors());
+app.use('*',cors());
 
 const mongoose = require('mongoose');
 
 // Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/absensatuu', { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect('mongodb://172.9.1.157:27017/absensatuu', { useNewUrlParser: true, useUnifiedTopology: true });
 const db = mongoose.connection;
 
 // Define a schema for the Todo model
@@ -61,7 +61,7 @@ app.get('/jajan', async (req, res) => {
 
 app.put('/jajan/:id', async (req, res) => {
   const id = req.params.id;
-  const { nama, shortname, qty } = req.body;
+  const { nama, shortname, qty, jumlah } = req.body;
 
   try {
     // Find the jajan by its ID
@@ -82,6 +82,10 @@ app.put('/jajan/:id', async (req, res) => {
 
     if (qty !== undefined) {
       jajan.qty = qty;
+    }
+    
+    if (jumlah !== undefined) {
+      jajan.qty = jajan.qty + Number(jumlah);
     }
 
     // Save the updated jajan
@@ -113,7 +117,7 @@ app.delete('/jajan/:id', async (req, res) => {
 app.put('/jajan/terjual/:id', async (req, res) => {
   const id = req.params.id;
   const { jumlah } = req.body;
-  console.log(jumlah);
+  // console.log(jumlah);
   try {
     // Find the jajan by its ID
     const jajan = await Jajan.findById(id);
@@ -136,7 +140,9 @@ app.put('/jajan/terjual/:id', async (req, res) => {
   }
 });
 
-app.post('/transaksi', async (req, res) => {
+app.post('/transaksi', async (req, res) => {  
+  console.log(req.body);
+  // console.log(JSON.stringify(req.body))
   try {
     const newJajan = new Transaksi(req.body);
     await newJajan.save();
